@@ -11,7 +11,6 @@ namespace API.Helpers
         public ProductUrlRelosver(IConfiguration config)
         {
             _config = config;
-
         }
 
         public string Resolve(Product source, ProductToReturnDto destination, string destMember, ResolutionContext context)
