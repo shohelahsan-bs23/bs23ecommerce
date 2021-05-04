@@ -19,29 +19,32 @@ namespace API.Controllers
     public class ShoppingCartController : BaseApiController
     {
         private readonly IShoppingCartRepository _shoppingCartRepository;
-        public ShoppingCartController(IShoppingCartRepository shoppingCartRepository)
+        private readonly IMapper _mapper;
+        public ShoppingCartController(IShoppingCartRepository shoppingCartRepository, IMapper mapper)
         {
+            _mapper = mapper;
             _shoppingCartRepository = shoppingCartRepository;
         }
 
-        [HttpGet] 
-        public async Task<ActionResult<CustomerShoppingCart>> GetShoppingCartById(string id)   
+        [HttpGet]
+        public async Task<ActionResult<CustomerShoppingCart>> GetShoppingCartById(string id)
         {
             var shoppingCart = await _shoppingCartRepository.GetShoppingCartAsync(id);
             return Ok(shoppingCart ?? new CustomerShoppingCart(id));
         }
 
         [HttpPost]
-        public async Task<ActionResult<CustomerShoppingCart>> UpdateShoppingCart(CustomerShoppingCart shoppingCart)   
+        public async Task<ActionResult<CustomerShoppingCart>> UpdateShoppingCart(CustomerShoppingCartDto shoppingCartDto)
         {
+            var shoppingCart = _mapper.Map<CustomerShoppingCartDto, CustomerShoppingCart>(shoppingCartDto);
             var updatedShoppingCart = await _shoppingCartRepository.UpdateShoppingCartAsync(shoppingCart);
             return Ok(updatedShoppingCart);
         }
 
         [HttpDelete]
-        public async Task DeleteShoppingCart(string id)   
+        public async Task DeleteShoppingCart(string id)
         {
             await _shoppingCartRepository.DeleteShoppingCartAsync(id);
         }
-    }    
+    }
 }
