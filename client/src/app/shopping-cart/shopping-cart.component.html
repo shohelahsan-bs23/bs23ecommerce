@@ -8,65 +8,23 @@
             <div class="container">
                 <div class="row">
                     <div class="col-12 py-5 mb-1">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th class="border-0 bg-light" scope="col">
-                                            <div class="p-2 px-3 text-uppercase">Product</div>
-                                        </th>
-                                        <th scope="col" class="border-0 bg-light">
-                                            <div class="py-2 text-uppercase">Price</div>
-                                        </th>
-                                        <th scope="col" class="border-0 bg-light">
-                                            <div class="py-2 text-uppercase">Quantity</div>
-                                        </th>
-                                        <th scope="col" class="border-0 bg-light">
-                                            <div class="py-2 text-uppercase">Total</div>
-                                        </th>
-                                        <th scope="col" class="border-0 bg-light">
-                                            <div class="py-2 text-uppercase">Remove</div>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let item of (shoppingCart$ | async).items">
-                                        <th scope="row">
-                                            <div class="p-2">
-                                                <img src="{{item.pictureUrl}}" alt="{{item.productName}}" class="img-fluid" style="max-height: 60px;">
-                                                <div class="ml-3 d-inline-block align-middle">
-                                                    <h5 class="mb-0">
-                                                        <a routerLink="/shop/{{item.id}}" class="text-dark">{{item.productName}}</a>
-                                                    </h5>
-                                                    <span class="muted font-weight-normal font-italic d-block">Type: {{item.type}}</span>
-                                                    <span class="muted font-weight-normal font-italic d-block">Brand: {{item.brand}}</span>
-                                                </div>
-                                            </div>
-                                        </th>
-                                        <td class="align-middle"><strong>{{item.price | currency}}</strong></td>
-                                        <td class="align-middle">
-                                            <div class="d-flex align-items-center">
-                                                <a (click)="decrementItemQuantity(item)" class="text-warning" style="cursor: pointer; font-size: 2em;"><i class="fa fa-minus-circle mr-2"></i></a>
-                                                <span class="font-weight-bold" style="font-size: 1.5em;">{{item.quantity}}</span>
-                                                <a (click)="incrementItemQuantity(item)" class="text-warning" style="cursor: pointer; font-size: 2em;"><i class="fa fa-plus-circle mx-2"></i></a>
-                                            </div>
-                                        </td>
-                                        <td class="align-middle"><strong>{{item.price * item.quantity | currency}}</strong></td>
-                                        <td class="align-middle text-center">
-                                            <a (click)="removeShoppingCartItem(item)" class="text-danger" style="font-size: 2em; cursor: pointer;">
-                                                <i class="fa fa-trash"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <app-shopping-cart-summary
+                        (decrement)="decrementItemQuantity($event)"
+                        (increment)="incrementItemQuantity($event)"
+                        (remove)="removeShoppingCartItem($event)"   
+                        [items]="(shoppingCart$ | async).items"
+                        ></app-shopping-cart-summary>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-6 offset-6">
-                        <app-order-totals></app-order-totals>
+                    <div class="col-6 offset-6">   
+                        <app-order-totals
+                        *ngIf="(shoppingCartTotal$ | async)"
+                        [shippingPrice]="(shoppingCartTotal$ | async).shipping"
+                        [subtotal]="(shoppingCartTotal$ | async).subtotal"
+                        [total]="(shoppingCartTotal$ | async).total"
+                        ></app-order-totals>
                         <a routerLink="/checkout" class="btn btn-outline-primary py-2 btn-block">Proceed to checkout</a>
                     </div>
                 </div>

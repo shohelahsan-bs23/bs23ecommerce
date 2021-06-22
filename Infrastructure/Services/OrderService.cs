@@ -44,7 +44,7 @@ namespace Infrastructure.Services
             _unitOfWork.Repository<Order>().Add(order);
 
             // save to db
-            var result = await _unitOfWork.Complete();
+            var result = await _unitOfWork.CompleteAsync();
 
             if(result <= 0) return null;
 

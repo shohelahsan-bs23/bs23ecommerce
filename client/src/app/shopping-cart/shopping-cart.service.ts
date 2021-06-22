@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { IDeliveryMethod } from '../shared/models/deliveryMethod';
 import { IProduct } from '../shared/models/product';
 import { IShoppingCart, IShoppingCartItem, IShoppingCartTotals, ShoppingCart } from '../shared/models/shopping-cart';
 
@@ -15,8 +16,14 @@ export class ShoppingCartService {
   shoppingCart$ = this.shoppingCartSource.asObservable();
   private shoppingCartTotalSource = new BehaviorSubject<IShoppingCartTotals>(null);
   shoppingCartTotal$ = this.shoppingCartTotalSource.asObservable();
+  shipping = 0;
 
   constructor(private http: HttpClient) { }
+
+  setShippingPrice(deliveryMethod: IDeliveryMethod) {
+    this.shipping = deliveryMethod.price;
+    this.calculateTotals();
+  }
 
   getShoppingCart(id: string) {
     return this.http.get(this.baseUrl + 'shoppingcart?id=' + id).pipe(
@@ -77,6 +84,12 @@ export class ShoppingCartService {
     }
   }
 
+  deleteLocalShoppingCart(id: string) {
+    this.shoppingCartSource.next(null);
+    this.shoppingCartTotalSource.next(null);
+    localStorage.removeItem('shoppingcart_id');
+  }
+
   deleteShoppingCart(shoppingCart: IShoppingCart) {
     return this.http.delete(this.baseUrl + 'shoppingcart?id=' + shoppingCart.id).subscribe(() => {
       this.shoppingCartSource.next(null);
@@ -89,7 +102,7 @@ export class ShoppingCartService {
 
   private calculateTotals() {
     const shoppingCart = this.getCurrentShoppingCartValue();
-    const shipping = 0;
+    const shipping = this.shipping;
     const subtotal = shoppingCart.items.reduce((a, b) => (b.price *b.quantity) + a, 0);
     const total = subtotal + shipping;
     this.shoppingCartTotalSource.next({shipping, total, subtotal});

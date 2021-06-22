@@ -15,9 +15,14 @@ namespace Infrastructure.Data
             _context = context;
         }
 
-        public async Task<int> Complete()
+        public async Task<int> CompleteAsync()
         {
             return await _context.SaveChangesAsync();
+        }
+
+        public int Complete()
+        {
+            return _context.SaveChanges();
         }
 
         public void Dispose()
