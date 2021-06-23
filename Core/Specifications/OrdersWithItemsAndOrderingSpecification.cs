@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Core.Entities.OrderAggregate;
 
@@ -17,6 +18,21 @@ namespace Core.Specifications
         {
             AddInclude(o => o.OrderItems);
             AddInclude(o => o.DeliveryMethod);
+        }
+
+        public OrdersWithItemsAndOrderingSpecification(OrderSpecParams orderParams)
+        {
+            AddInclude(o => o.OrderItems);
+            AddInclude(o => o.DeliveryMethod);
+            AddOrderByDescending(o => o.OrderDate);
+            ApplyPaging(orderParams.PageSize * (orderParams.PageIndex - 1), orderParams.PageSize);
+        }
+        
+        public OrdersWithItemsAndOrderingSpecification(List<int> ids) : base(o => ids.Contains(o.Id) )
+        {
+            AddInclude(o => o.OrderItems);
+            AddInclude(o => o.DeliveryMethod);
+            AddOrderByDescending(o => o.OrderDate);
         }
     }
 }

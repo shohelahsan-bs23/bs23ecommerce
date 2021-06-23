@@ -46,7 +46,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<OrderDto>>> GetOrdersForUser()
+        public async Task<ActionResult<IReadOnlyList<OrderToReturnDto>>> GetOrdersForUser()
         {
             var email = HttpContext.User.RetrieveEmailFromPrincipal();
 
@@ -73,6 +73,41 @@ namespace API.Controllers
             var deliveryMethods = await _orderService.GetDeliveryMethodsAsync();
 
             return Ok(deliveryMethods);
+        }
+
+        [HttpGet("for-approve-reject")]
+        public async Task<ActionResult<Pagination<OrderToReturnDto>>> GetOrdersForApproveReject([FromQuery] OrderSpecParams orderParams)
+        {
+            var orders = await _orderService.GetOrdersForApproveRejectAsync(orderParams);
+
+            var totalOrders = await _orderService.GetOrdersCountAsync();
+
+            var data =_mapper.Map<IReadOnlyList<Order>, IReadOnlyList<OrderToReturnDto>>(orders);
+
+            return Ok(new Pagination<OrderToReturnDto>(orderParams.PageIndex,
+            orderParams.PageSize, totalOrders, data));
+        }
+
+        [Authorize]
+        [HttpPut("approve")]
+        public async Task<ActionResult<int>> ApproveSelectedOrders([FromBody] OrderParams orderUpdParams)
+        {
+            var ordersUpdatedCount = await _orderService.UpdateOrdersStatusForApproveRejectAsync(orderUpdParams.OrderIds, OrderStatus.Approved, orderUpdParams.OrderSpecParams);
+
+            if (ordersUpdatedCount <= 0) return BadRequest(new ApiResponse(500, "Problem approving orders"));
+
+            return Ok(ordersUpdatedCount);
+        }
+
+        [Authorize]
+        [HttpPut("reject")]
+        public async Task<ActionResult<int>> RejectSelectedOrders([FromBody] OrderParams orderUpdParams)
+        {
+            var ordersUpdatedCount = await _orderService.UpdateOrdersStatusForApproveRejectAsync(orderUpdParams.OrderIds, OrderStatus.Rejected, orderUpdParams.OrderSpecParams);
+
+            if (ordersUpdatedCount <= 0) return BadRequest(new ApiResponse(500, "Problem rejecting orders"));
+
+            return Ok(ordersUpdatedCount);
         }
     }
 }

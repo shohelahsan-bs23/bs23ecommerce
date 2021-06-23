@@ -70,5 +70,37 @@ namespace Infrastructure.Services
             var spec = new OrdersWithItemsAndOrderingSpecification(buyerEmail);
             return await _unitOfWork.Repository<Order>().ListAsync(spec);
         }
+        
+        public async Task<IReadOnlyList<Order>> GetOrdersForApproveRejectAsync(OrderSpecParams orderSpecParams)
+        {
+            var spec = new OrdersWithItemsAndOrderingSpecification(orderSpecParams);
+            return await _unitOfWork.Repository<Order>().ListAsync(spec);
+        }
+
+        public async Task<int> GetOrdersCountAsync()
+        {
+            return await _unitOfWork.Repository<Order>().CountAsync();
+        }
+        
+        public async Task<int> UpdateOrdersStatusForApproveRejectAsync(int[] orderIds, OrderStatus status, OrderSpecParams orderSpecParams)
+        {
+            var spec = new OrdersWithItemsAndOrderingSpecification(orderIds.ToList());
+
+            var orderList = await _unitOfWork.Repository<Order>().ListAsync(spec);
+
+            List<Order> listOrder = new List<Order>();
+            foreach (var order in orderList)
+            {
+                order.Status = status;
+                listOrder.Add(order);
+            }
+            _unitOfWork.Repository<Order>().UpdateRange(listOrder);
+
+            // save to db
+            var result = await _unitOfWork.CompleteAsync();
+            return result;
+            //var specific = new OrdersWithItemsAndOrderingSpecification(orderSpecParams);
+            //return await _unitOfWork.Repository<Order>().ListAsync(specific);
+        }
     }
 }

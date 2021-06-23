@@ -1,0 +1,64 @@
+<div class="container mt-5">
+    <div class="row">      
+      <div class="col-12">
+        <app-paging-header
+          [totalCount]="totalCount" 
+          [pageSize]="this.orderParams.pageSize" 
+          [pageNumber]="this.orderParams.pageNumber"
+        ></app-paging-header>
+        <table class="table table-hover mt-1" style="cursor: pointer;">
+          <thead class="thead-light">
+          <tr>
+            <th>
+                <input type="checkbox" [indeterminate]="orderIds.length > 0 && orderIds.length < orderParams.pageSize " style="cursor: pointer;" [(ngModel)]="selectAll" (change)="mastertoogle((selectAll?'Y':'N'))">
+            </th>
+            <th>Order</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let order of orders">
+            <td>
+              <div *ngIf="order.status == 'Approved' || order.status == 'Rejected'; else chkBoxTemplate">
+                <input type="checkbox" checked="checked" disabled="disabled" />
+              </div>            
+              <ng-template #chkBoxTemplate>
+                <input type="checkbox" [checked]="order.status == 'Approved' || order.status == 'Rejected'" style="cursor: pointer;" [(ngModel)]="order.checked" (change)="toogle((order.checked?'Y':'N'), order)" >
+              </ng-template>
+            </td>
+            <td># {{order.id}}</td>
+            <td>{{order.orderDate | date: 'medium'}}</td>
+            <td>{{order.total | currency}}</td>
+            <td><h5><span class="badge" 
+              [ngClass]="{'badge-warning' : order.status === 'Pending',
+                          'badge-success': order.status === 'Approved', 
+                          'badge-danger' : order.status === 'Rejected',                           
+                          'badge-primary': order.status === 'Payment Received', 
+                          'badge-secondary' : order.status === 'Payment Failed', 
+                          'badge-dark' : order.status === 'Shipped' }">{{order.status}}</span></h5></td>
+            <td>
+              <div *ngIf="order.status == 'Approved' || order.status == 'Rejected'; else buttonTemplate">
+                <h6>N/A</h6>
+              </div>            
+              <ng-template #buttonTemplate>
+                <button class="btn btn-sm btn-success" (click)="approve(order)" >Approve</button>
+                &nbsp;&nbsp;
+              <button class="btn btn-sm btn-danger" (click)="reject(order)" >Reject</button>
+              </ng-template>              
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <div class="d-flex justify-content-center" *ngIf="totalCount > 0">
+          <app-pager
+              [pageSize]="orderParams.pageSize" 
+              [totalCount]="totalCount"
+              (pageChanged)="onPageChanged($event)"
+          ></app-pager>
+    </div>
+      </div>
+    </div>
+  </div>

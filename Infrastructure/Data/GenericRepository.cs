@@ -42,6 +42,11 @@ namespace Infrastructure.Data
         {
             return await ApplySpecification(spec).CountAsync();
         }
+        
+        public async Task<int> CountAsync()
+        {
+            return await _context.Set<T>().AsQueryable().CountAsync();
+        }
 
         private IQueryable<T> ApplySpecification(ISpecification<T> spec)
         {
@@ -53,10 +58,24 @@ namespace Infrastructure.Data
             _context.Set<T>().Add(entity);
         }
 
+        public void AddRange(IEnumerable<T> entityList)
+        {
+            _context.Set<T>().AddRange(entityList);
+        }
+
         public void Update(T entity)
         {
             _context.Set<T>().Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
+        }
+
+        public void UpdateRange(IEnumerable<T> entityList)
+        {
+            _context.Set<T>().AttachRange(entityList);
+            foreach (var entity in entityList)
+            {
+                _context.Entry(entity).State = EntityState.Modified;
+            }            
         }
 
         public void Delete(T entity)
