@@ -20,15 +20,30 @@ export class ShoppingCartService {
 
   constructor(private http: HttpClient) { }
 
+  createPaymentIntent() {
+    return this.http.post(this.baseUrl + 'payments/' + this.getCurrentShoppingCartValue().id, {})
+    .pipe(
+      map((shoppingCart: IShoppingCart) => {
+        this.shoppingCartSource.next(shoppingCart);
+        console.log(this.getCurrentShoppingCartValue());
+      })
+    );
+  }
+
   setShippingPrice(deliveryMethod: IDeliveryMethod) {
     this.shipping = deliveryMethod.price;
+    const shoppingCart = this.getCurrentShoppingCartValue();
+    shoppingCart.deliveryMethodId = deliveryMethod.id;
+    shoppingCart.shippingPrice = deliveryMethod.price;
     this.calculateTotals();
+    this.setShoppingCart(shoppingCart);
   }
 
   getShoppingCart(id: string) {
     return this.http.get(this.baseUrl + 'shoppingcart?id=' + id).pipe(
       map((shoppingCart: IShoppingCart) => {
         this.shoppingCartSource.next(shoppingCart);
+        this.shipping = shoppingCart.shippingPrice;
         this.calculateTotals();
       })
     );

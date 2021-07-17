@@ -19,7 +19,7 @@ export class CheckoutComponent implements OnInit {
   ngOnInit() {
     this.createCheckoutForm();
     this.getAddressFormValues();
-    //this.getDeliveryMethodValue();
+    this.getDeliveryMethodValue();
     this.shoppingCartTotals$ = this.shoppingCartService.shoppingCartTotal$;
   }
 
