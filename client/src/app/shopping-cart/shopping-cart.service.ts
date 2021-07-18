@@ -25,7 +25,7 @@ export class ShoppingCartService {
     .pipe(
       map((shoppingCart: IShoppingCart) => {
         this.shoppingCartSource.next(shoppingCart);
-        console.log(this.getCurrentShoppingCartValue());
+        //console.log(this.getCurrentShoppingCartValue());
       })
     );
   }
